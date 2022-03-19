@@ -34,7 +34,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Tittle</th>
+                        <th>Title</th>
                         <th>Alt</th>
                         <th>Url</th>
                         <th>Description</th>
