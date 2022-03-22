@@ -46,6 +46,9 @@
                 </tbody>
             </table>
 
+            {{-- Pagination buttons --}}
+            <div class="button-container"></div> 
+
             <table class="template d-none">
                 <tr>
                   <td class="col-image-id"></td>
@@ -82,48 +85,49 @@
                  return $(".template tbody").html();
                 }
 
-                $.ajax({
-                type: 'GET',
-                url: 'http://127.0.0.1:8000/api/images',
+                $(document).on('click', '.button-container button', function(){ // piesia lentele su pagination
+                    let page= $(this).attr('data-page');
+                    $.ajax({
+                        type: 'GET',
+                        url: page,
+                        success: function(data) {
+                            $('#images tbody').html('');//isvalo lentele
+                            $('.button-container').html('');//isvalo mygtukus
 
+                            $.each(data.data, function(key, image){ //braizo lentele
+                                let html;
+                                html = createRowFromHtml(image.id, image.title, image.alt, image.url, image.description);
+                                $('#images tbody').append(html);
+                            });
+
+                            $.each(data.links, function(key, link){ // braizo mygtukus
+                                let button;
+                                button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                $('.button-container').append(button);
+                            });
+                            console.log(data);
+                        }
+                    });
+
+                });
+
+                $.ajax({ // pradiniu uzkrovimu piesia lentele
+                    type: 'GET',
+                    url: 'http://127.0.0.1:8000/api/images',
                     success: function(data) {
-                        $('#images tbody').html(''); //1. isvalo lentele
-                        $.each(data, function(key, image){//2. piesia lentele
+                        $.each(data.data, function(key, image){ //braizo lentele
                             let html;
                             html = createRowFromHtml(image.id, image.title, image.alt, image.url, image.description);
-                            $("#images tbody").append(html)
+                            $('#images tbody').append(html);
                         });
-                        console.log(data);
-                            
-                            // if($.isEmptyObject(data.errorMessage)) {
-                            //   //sekmes atvejis
-                            //   $("#clients-table tbody").html('');
-                            //  $.each(data.clients, function(key, client) {
-                            //       let html;
-                            //       html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.client_company.title);
-                            //       // console.log(html)
-                            //       $("#clients-table tbody").append(html);
-                            //  });
-                            // $("#createClientModal").hide();
-                            // $('body').removeClass('modal-open');
-                            // $('.modal-backdrop').remove();
-                            // $('body').css({overflow:'auto'});
-                            // $("#alert").removeClass("d-none");
-                            // $("#alert").html(data.successMessage +" " + data.clientName +" " +data.clientSurname);
-                            // $('#client_name').val('');
-                            // $('#client_surname').val('');
-                            // $('#client_description').val('');
-                            // } else {
-                            //   console.log(data.errorMessage);
-                            //   console.log(data.errors);
-                            //   $('.create-input').removeClass('is-invalid');
-                            //   $('.invalid-feedback').html('');
-                            //   $.each(data.errors, function(key, error) {
-                            //     console.log(key);//key = input id
-                            //     $('#'+key).addClass('is-invalid');
-                            //     $('.input_'+key).html("<strong>"+error+"</strong>");
-                            //   });
-                            // }
+
+                        console.log(data.links);
+
+                        $.each(data.links, function(key, link){ // braizo pagination buttonus
+                            let button;
+                            button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                            $('.button-container').append(button);
+                        });
                     }
                 });
             })
