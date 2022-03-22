@@ -30,11 +30,102 @@
         </style>
     </head>
     <body class="antialiased">
+        <div class="container">
+            <table id="images" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Alt</th>
+                        <th>URL</th>
+                        <td>Description</td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+            <table class="template d-none">
+                <tr>
+                  <td class="col-image-id"></td>
+                  <td class="col-image-title"></td>
+                  <td class="col-image-alt"></td>
+                  <td class="col-image-url"></td>
+                  <td class="col-image-description"></td>
+                  <td>
+                    <button class="btn btn-danger delete-image" type="submit" data-imageid="">DELETE</button>
+                    <button type="button" class="btn btn-primary show-image" data-bs-toggle="modal" data-bs-target="#showImageModal" data-imageid="">Show</button>
+                    <button type="button" class="btn btn-secondary edit-image" data-bs-toggle="modal" data-bs-target="#editImageModal" data-imageid="">Edit</button>
+                  </td>
+                </tr>  
+            </table>  
+        </div>
         
 
         <script>
             $(document).ready(function(){
                 console.log('Jquery veikia');
+
+            function createRowFromHtml(imageId, imageTitle, imageAlt, imageUrl, imageDescription) {
+                $(".template tr").removeAttr("class");
+                $(".template tr").addClass("image"+imageId);
+                $(".template .delete-image").attr('data-imageid', imageId );
+                $(".template .show-image").attr('data-imageid', imageId );
+                $(".template .edit-image").attr('data-imageid', imageId );
+                $(".template .col-image-id").html(imageId);
+                $(".template .col-image-title").html(imageTitle);
+                $(".template .col-image-alt").html(imageAlt);
+                $(".template .col-image-url").html(imageUrl);
+                $(".template .col-image-description").html(imageDescription);
+    
+                 return $(".template tbody").html();
+                }
+
+                $.ajax({
+                type: 'GET',
+                url: 'http://127.0.0.1:8000/api/images',
+
+                    success: function(data) {
+                        $('#images tbody').html(''); //1. isvalo lentele
+                        $.each(data, function(key, image){//2. piesia lentele
+                            let html;
+                            html = createRowFromHtml(image.id, image.title, image.alt, image.url, image.description);
+                            $("#images tbody").append(html)
+                        });
+                        console.log(data);
+                            
+                            // if($.isEmptyObject(data.errorMessage)) {
+                            //   //sekmes atvejis
+                            //   $("#clients-table tbody").html('');
+                            //  $.each(data.clients, function(key, client) {
+                            //       let html;
+                            //       html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.client_company.title);
+                            //       // console.log(html)
+                            //       $("#clients-table tbody").append(html);
+                            //  });
+                            // $("#createClientModal").hide();
+                            // $('body').removeClass('modal-open');
+                            // $('.modal-backdrop').remove();
+                            // $('body').css({overflow:'auto'});
+                            // $("#alert").removeClass("d-none");
+                            // $("#alert").html(data.successMessage +" " + data.clientName +" " +data.clientSurname);
+                            // $('#client_name').val('');
+                            // $('#client_surname').val('');
+                            // $('#client_description').val('');
+                            // } else {
+                            //   console.log(data.errorMessage);
+                            //   console.log(data.errors);
+                            //   $('.create-input').removeClass('is-invalid');
+                            //   $('.invalid-feedback').html('');
+                            //   $.each(data.errors, function(key, error) {
+                            //     console.log(key);//key = input id
+                            //     $('#'+key).addClass('is-invalid');
+                            //     $('.input_'+key).html("<strong>"+error+"</strong>");
+                            //   });
+                            // }
+                    }
+                });
             })
         </script>
     </body>
