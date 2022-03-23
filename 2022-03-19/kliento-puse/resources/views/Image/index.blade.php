@@ -101,8 +101,13 @@
                             });
 
                             $.each(data.links, function(key, link){ // braizo mygtukus
+
                                 let button;
-                                button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                if(link.active == true){
+                                    button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                } else {
+                                    button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                }
                                 $('.button-container').append(button);
                             });
                             console.log(data);
@@ -121,13 +126,19 @@
                             $('#images tbody').append(html);
                         });
 
-                        console.log(data.links);
-
-                        $.each(data.links, function(key, link){ // braizo pagination buttonus
+                        $.each(data.links, function(key, link){ // ar nuspaustas mygtukas?
+                            
                             let button;
+                            if(link.active == true) { 
+                                button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                            } else {
                             button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                            }
                             $('.button-container').append(button);
                         });
+
+                        console.log(data.links);
+
                     }
                 });
             })
