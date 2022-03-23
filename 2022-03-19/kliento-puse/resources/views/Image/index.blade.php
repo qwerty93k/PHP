@@ -30,6 +30,7 @@
         </style>
     </head>
     <body class="antialiased">
+        <button id="show-add-image-modal" data-bs-toggle="modal" data-bs-target="#addImgModal">Add Image</button>
         <div class="container">
             <table id="images" class="table table-striped">
                 <thead>
@@ -65,10 +66,67 @@
             </table>  
         </div>
         
+        {{-- ADD IMG --}}
+
+        <div class="modal fade" id="addImgModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Add Img</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="ajaxForm">
+                    <div class="form-group">
+                        <label for="image_title">Img Title</label>
+                        <input id="image_title" class="form-control create-input" type="text" name="image_title" />
+                        <span class="invalid-feedback input_image_title">
+                        </span>
+                      </div>
+                    <div class="form-group">
+                        <label for="image_alt">Alt</label>
+                        <input id="image_alt" class="form-control create-input" type="text" name="image_alt" />
+                        <span class="invalid-feedback input_image_alt">
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="image_url">Url</label>
+                        <input id="image_url" class="form-control create-input" type="text" name="image_url" />
+                        <span class="invalid-feedback input_image_url">
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="image_description">Description</label>
+                        <input id="image_description" class="form-control create-input" type="text" name="image_description" />
+                        <span class="invalid-feedback input_image_description">
+                        </span>  
+                    </div>
+                    {{-- <div class="form-group">
+                      <label for="client_company_id">Client Company</label>
+                      <select id="client_company_id" class="form-select create-input">
+                        @foreach ($companies as $company)
+                          <option value="{{$company->id}}">{{$company->title}}</option>
+                        @endforeach
+                      </select>
+                      <span class="invalid-feedback input_client_company_id"> </span> 
+                    </div> --}}
+                </div> 
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {{-- <button id="close-client-create-modal" type="button" class="btn btn-secondary">Close with Javascript</button> --}}
+                    <button id="add-img" type="button" class="btn btn-primary">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
         <script>
             $(document).ready(function(){
                 console.log('Jquery veikia');
+            })
+
+            let csrf = 'test'; // nesusikuria ant head tokenas be auth modulio
 
             function createRowFromHtml(imageId, imageTitle, imageAlt, imageUrl, imageDescription) {
                 $(".template tr").removeAttr("class");
@@ -90,6 +148,7 @@
                     $.ajax({
                         type: 'GET',
                         url: page,
+                        data: {csrf:csrf},
                         success: function(data) {
                             $('#images tbody').html('');//isvalo lentele
                             $('.button-container').html('');//isvalo mygtukus
@@ -103,10 +162,12 @@
                             $.each(data.links, function(key, link){ // braizo mygtukus
 
                                 let button;
-                                if(link.active == true){
-                                    button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
-                                } else {
-                                    button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                if (link.url != null){
+                                    if(link.active == true){
+                                        button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                    } else {
+                                        button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                    }
                                 }
                                 $('.button-container').append(button);
                             });
@@ -119,6 +180,7 @@
                 $.ajax({ // pradiniu uzkrovimu piesia lentele
                     type: 'GET',
                     url: 'http://127.0.0.1:8000/api/images',
+                    data: {csrf:csrf},
                     success: function(data) {
                         $.each(data.data, function(key, image){ //braizo lentele
                             let html;
@@ -129,10 +191,12 @@
                         $.each(data.links, function(key, link){ // ar nuspaustas mygtukas?
                             
                             let button;
-                            if(link.active == true) { 
-                                button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
-                            } else {
-                            button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                            if (link.url != null){
+                                if(link.active == true) { 
+                                    button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                } else {
+                                button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                }
                             }
                             $('.button-container').append(button);
                         });
@@ -141,7 +205,24 @@
 
                     }
                 });
-            })
+
+                $(document).on('click', '#add-img', function(){
+                
+                    let image_title = $('#image_title').val(); //reiksmes is modal input lauku
+                    let image_alt = $('#image_alt').val();
+                    let image_url = $('#image_url').val();
+                    let image_description = $('#image_description').val();
+
+                    $.ajax({
+                        type: 'POST',
+                        url: 'http://127.0.0.1:8000/api/images',
+                        data: {image_title:image_title, image_alt:image_alt, image_url:image_url, image_description:image_description},
+                        success: function(data) {
+
+                            console.log(data)
+                        }
+                    });
+                })
         </script>
     </body>
 </html>
