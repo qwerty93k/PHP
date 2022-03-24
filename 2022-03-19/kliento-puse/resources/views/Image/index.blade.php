@@ -59,8 +59,8 @@
                   <td class="col-image-description"></td>
                   <td>
                     <button class="btn btn-danger delete-image" type="submit" data-imageid="">DELETE</button>
-                    <button type="button" class="btn btn-primary show-image" data-bs-toggle="modal" data-bs-target="#showImageModal" data-imageid="">Show</button>
-                    <button type="button" class="btn btn-secondary edit-image" data-bs-toggle="modal" data-bs-target="#editImageModal" data-imageid="">Edit</button>
+                    <button type="button" class="btn btn-primary show-image" data-bs-toggle="modal" data-bs-target="#showImgModal" data-imageid="">Show</button>
+                    <button type="button" class="btn btn-secondary edit-image" data-bs-toggle="modal" data-bs-target="#editImgModal" data-imageid="">Edit</button>
                   </td>
                 </tr>  
             </table>  
@@ -101,21 +101,49 @@
                         <span class="invalid-feedback input_image_description">
                         </span>  
                     </div>
-                    {{-- <div class="form-group">
-                      <label for="client_company_id">Client Company</label>
-                      <select id="client_company_id" class="form-select create-input">
-                        @foreach ($companies as $company)
-                          <option value="{{$company->id}}">{{$company->title}}</option>
-                        @endforeach
-                      </select>
-                      <span class="invalid-feedback input_client_company_id"> </span> 
-                    </div> --}}
                 </div> 
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    {{-- <button id="close-client-create-modal" type="button" class="btn btn-secondary">Close with Javascript</button> --}}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button id="add-img" type="button" class="btn btn-primary">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {{-- EDIT MODAL --}}
+
+          <div class="modal fade" id="editImgModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Edit Img</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="ajaxForm">
+                    <input type="hidden" id="edit_image_id" name="image_id" />
+                    <div class="form-group">
+                        <label for="image_title">Image Title</label>
+                        <input id="edit_image_title" class="form-control" type="text" name="image_title" />
+                    </div>
+                    <div class="form-group">
+                        <label for="image_alt">Image Alt</label>
+                        <input id="edit_image_alt" class="form-control" type="text" name="image_alt" />
+                    </div>
+                    <div class="form-group">
+                        <label for="image_url">Image Url</label>
+                        <input id="edit_image_url" class="form-control" type="text" name="image_url" />
+                    </div>
+                    <div class="form-group">
+                        <label for="image_description">Image Description</label>
+                        <input id="edit_image_description" class="form-control" type="text" name="image_description" />
+                    </div>
+                </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="update-image" type="button" class="btn btn-primary update-image">Update</button>
                 </div>
               </div>
             </div>
@@ -251,6 +279,41 @@
                     }
                 });
             })
+
+            // update-img
+            $(document).on('click', '#update-image', function() {
+                let imageid = $('#edit_image_id').val();
+                let image_title = $('#edit_image_title').val();
+                let image_alt = $('#edit_image_alt').val();
+                let image_url = $('#edit_image_url').val();
+                let image_description = $('#edit_image_description').val();
+                $.ajax({
+                    type: 'PUT',
+                    url: 'http://127.0.0.1:8000/api/images/' + imageid,
+                    data: {image_title:image_title, image_alt:image_alt, image_url:image_url, image_description:image_description},
+                    success: function(data) {
+                        console.log(data);
+                    }
+                });
+            });
+
+            //atidaro forma su duomenimis
+            $(document).on('click', '.edit-image', function() {
+                let imageid = $(this).attr('data-imageid');
+                $.ajax({ // SHOW
+                    type: 'GET',
+                    url: 'http://127.0.0.1:8000/api/images/'+imageid,
+                    success: function(data) {
+                        $('#edit_image_id').val(data.id);
+                        $('#edit_image_title').val(data.title);
+                        $('#edit_image_alt').val(data.alt);
+                        $('#edit_image_url').val(data.url);
+                        $('#edit_image_description').val(data.description);
+                    }
+                });
+            });
+
+             
         </script>
     </body>
 </html>
