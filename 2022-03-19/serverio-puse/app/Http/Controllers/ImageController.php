@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Image;
 use Illuminate\Http\Request;
+use Validator;
 
 class ImageController extends Controller
 {
@@ -35,22 +36,55 @@ class ImageController extends Controller
      */
     public function store(Request $request)
     {
-        $image = new Image;
+        $input = [
+            'image_title' => $request->image_title,
+            'image_alt' => $request->image_alt,
+            'image_url' => $request->image_url,
+            'image_description' => $request->image_description,
+        ];
 
-        $image->title = $request->image_title;
-        $image->alt = $request->image_alt;
-        $image->url = $request->image_url;
-        $image->description = $request->image_description;
+        $rules = [
+            'image_title' => 'required',
+            'image_alt' => 'required',
+            'image_url' => 'required',
+            'image_description' => 'required',
+        ];
 
-        $image->save();
+        $validator = Validator::make($input, $rules); // 3 funckijos argumentas neprivalomas
 
-        return response()->json(array(
-            'success' => 'Image submitted',
-            'title' => $image->title,
-            'alt' => $image->alt,
-            'url' => $image->url,
-            'description' => $image->description
-        ));
+
+        //tikrina ar validatorius nepraejo
+        if ($validator->fails()) {
+
+            //zinuciu masyva, kuriose surasyta viskas, kas negerai
+            //atvaizduoti zinuciu masyva prie kiekvieno input laukelio
+            $errors = $validator->messages()->get('*'); //pasiima visu ivykusiu klaidu sarasa
+            $image_array = array(
+                'errorMessage' => "validator fails",
+                'errors' => $errors
+            );
+        } else {
+
+            $image = new Image;
+            $image->title = $request->image_title;
+            $image->alt = $request->image_alt;
+            $image->url = $request->image_url;
+            $image->description = $request->image_description;
+
+            $image->save();
+
+            $image_array = array(
+                'successMessage' => "Image stored succesfuly",
+                'imageId' => $image->id,
+                'imageTitle' => $image->title,
+                'imageAlt' => $image->alt,
+                'imageUrl' => $image->url,
+                'imageDescription' => $image->description,
+            );
+        }
+
+        $json_response = response()->json($image_array);
+        return $json_response;
     }
 
     /**

@@ -30,7 +30,7 @@
         </style>
     </head>
     <body class="antialiased">
-        <button id="show-add-image-modal" data-bs-toggle="modal" data-bs-target="#addImgModal">Add Image</button>
+        <button id="show-add-image-modal" data-bs-toggle="modal" data-bs-target="#addImgModal">Add Image</button> {{--  issaukia modal --}}
         <div class="container">
             <table id="images" class="table table-striped">
                 <thead>
@@ -206,7 +206,7 @@
                     }
                 });
 
-                $(document).on('click', '#add-img', function(){
+                $(document).on('click', '#add-img', function(){ // prideti img
                 
                     let image_title = $('#image_title').val(); //reiksmes is modal input lauku
                     let image_alt = $('#image_alt').val();
@@ -218,11 +218,39 @@
                         url: 'http://127.0.0.1:8000/api/images',
                         data: {image_title:image_title, image_alt:image_alt, image_url:image_url, image_description:image_description},
                         success: function(data) {
-
                             console.log(data)
                         }
                     });
-                })
+
+                    $.ajax({ // sukurus img grazina i pirma puslapi
+                    type: 'GET',
+                    url: 'http://127.0.0.1:8000/api/images',
+                    data: {csrf:csrf},
+                    success: function(data) {
+                        $('#images tbody').html('');//isvalo lentele
+                        $('.button-container').html('');//isvalo mygtukus
+                        $.each(data.data, function(key, image){ //braizo lentele
+                            let html;
+                            html = createRowFromHtml(image.id, image.title, image.alt, image.url, image.description);
+                            $('#images tbody').append(html);
+                        });
+                        console.log(data.links);
+
+                        $.each(data.links, function(key, link){ // ar nuspaustas mygtukas?
+                            
+                            let button;
+                            if (link.url != null){
+                                if(link.active == true) { 
+                                    button = "<button class='btn btn-primary active' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                } else {
+                                button = "<button class='btn btn-primary' type='button' data-page='"+link.url+"'>"+link.label+"</button>";
+                                }
+                            }
+                            $('.button-container').append(button);
+                        });
+                    }
+                });
+            })
         </script>
     </body>
 </html>
