@@ -164,6 +164,11 @@ class ImageController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $image = Image::find($id);
+        $image->delete();
+
+        return response()->json(array(
+            'successMessage' => 'Image deleted'
+        ));
     }
 }

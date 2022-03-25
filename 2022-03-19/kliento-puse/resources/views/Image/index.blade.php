@@ -280,7 +280,7 @@
                 });
             })
 
-            // update-img
+            // update-img (2) // reik padaryt kad po update atsinaujintu psl ar grazintu i pirma
             $(document).on('click', '#update-image', function() {
                 let imageid = $('#edit_image_id').val();
                 let image_title = $('#edit_image_title').val();
@@ -297,7 +297,7 @@
                 });
             });
 
-            //atidaro forma su duomenimis
+            //atidaro forma su duomenimis (1)
             $(document).on('click', '.edit-image', function() {
                 let imageid = $(this).attr('data-imageid');
                 $.ajax({ // SHOW
@@ -312,6 +312,21 @@
                     }
                 });
             });
+
+            // DELETE // reik perkrauti puslapi
+
+            $(document).on('click', '.delete-image', function(){
+                let imageid = $(this).attr('data-imageid');
+                $.ajax({
+                    type: 'DELETE',
+                    url: 'http://127.0.0.1:8000/api/images/'+imageid,
+                    success: function(data) {
+                        console.log(data)
+                    }
+                });
+            })
+
+            
 
              
         </script>
